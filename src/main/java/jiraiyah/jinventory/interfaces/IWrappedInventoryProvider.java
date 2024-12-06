@@ -52,34 +52,8 @@ import org.jetbrains.annotations.Nullable;
  * </p>
  */
 @SuppressWarnings("unused")
-public interface IWrappedInventoryProvider extends IWrappedInventory<SimpleInventory>
+public interface IWrappedInventoryProvider extends IWrappedInventory
 {
-    /**
-     * The index of output inventory. This constant is always the same
-     * because we are registering the output inventory as index zero all the time.
-     */
-    int DEFAULT_OUTPUT_INDEX = 0;
-
-    /**
-     * The size of the output inventory, representing the maximum number of items
-     * that can be held in this inventory. This constant can be overridden in
-     * subclasses to accommodate different output capacities as needed. By default,
-     * the output inventory is set to allow only one item, making it suitable for
-     * scenarios where a single item output is required.
-     */
-    int DEFAULT_OUTPUT_SIZE = 1;
-
-    /**
-     * The direction in which the output inventory is oriented. This constant
-     * defines the default direction for item extraction from the output inventory.
-     * Subclasses can override this value if a different output direction is needed
-     * for more specialized behavior. By default, the output direction is set to
-     * Direction.DOWN, indicating that items are extracted downward from the block
-     * entity.
-     */
-    Direction DEFAULT_OUTPUT_DIRECTION = Direction.DOWN;
-
-
     /**
      * Adds an output inventory to this block entity.
      * <p>
@@ -106,7 +80,7 @@ public interface IWrappedInventoryProvider extends IWrappedInventory<SimpleInven
      *
      * @return The WrappedInventoryStorage instance containing the block entity's inventory.
      */
-    WrappedInventoryStorage<SimpleInventory> getInventory();
+    WrappedInventoryStorage getInventory();
 
     /**
      * Retrieves the storage for the inventory associated with this block entity

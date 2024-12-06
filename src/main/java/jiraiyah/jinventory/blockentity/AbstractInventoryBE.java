@@ -26,10 +26,10 @@ package jiraiyah.jinventory.blockentity;
 
 import jiraiyah.jinventory.WrappedInventoryStorage;
 import jiraiyah.jinventory.interfaces.IWrappedInventoryProvider;
-import jiraiyah.jiralib.blockentity.UpdatableBE;
-import jiraiyah.jiralib.interfaces.ITickBE;
-import jiraiyah.jiralib.network.BlockPosPayload;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import jiraiyah.jiralib.blockentity.UpdatableEndTickBE;
+import jiraiyah.jiralib.interfaces.ITickSyncBE;
+import jiraiyah.jiralib.record.BlockPosPayload;
+import jiraiyah.reference.Constants;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntityType;
@@ -55,7 +55,7 @@ import static jiraiyah.reference.BEKeys.HAS_INVENTORY;
  * @author jiraiyah
  */
 @SuppressWarnings("unused")
-public abstract class AbstractInventoryBE extends UpdatableBE implements ExtendedScreenHandlerFactory<BlockPosPayload>, ITickBE, IWrappedInventoryProvider
+public abstract class AbstractInventoryBE extends UpdatableEndTickBE implements ITickSyncBE, IWrappedInventoryProvider
 {
     /**
      * The wrapped inventory storage for this block entity.
@@ -71,7 +71,7 @@ public abstract class AbstractInventoryBE extends UpdatableBE implements Extende
      * carefully to ensure thread safety and consistency across different
      * operations.</p>
      */
-    private final WrappedInventoryStorage<SimpleInventory> inventory = new WrappedInventoryStorage<>();
+    private final WrappedInventoryStorage inventory = new WrappedInventoryStorage();
 
     /**
      * Constructs a new instance of the AbstractInventoryBE block entity.
@@ -123,7 +123,7 @@ public abstract class AbstractInventoryBE extends UpdatableBE implements Extende
      * @return The WrappedInventoryStorage instance containing the block entity's inventory.
      */
     @Override
-    public WrappedInventoryStorage<SimpleInventory> getInventory()
+    public WrappedInventoryStorage getInventory()
     {
         return this.inventory;
     }
@@ -160,24 +160,9 @@ public abstract class AbstractInventoryBE extends UpdatableBE implements Extende
     public SimpleInventory getOutputInventory()
     {
         if (!this.inventory.getStorages().isEmpty())
-            return this.inventory.getInventory(DEFAULT_OUTPUT_INDEX);
+            return this.inventory.getInventory(Constants.DEFAULT_INVENTORY_OUTPUT_INDEX);
         else
             return null;
-    }
-
-    /**
-     * Executes the logic for the block entity on each tick. This method is called
-     * every game tick (20 times per second) and can be overridden to implement
-     * custom behavior that should occur regularly, such as processing inventory
-     * updates, energy management, or other periodic actions.
-     * <p>
-     * This base implementation is empty and can be extended by subclasses to provide
-     * specific functionality as needed.
-     */
-    @Override
-    public void tick()
-    {
-
     }
 
     /**

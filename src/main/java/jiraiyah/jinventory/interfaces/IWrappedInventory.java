@@ -38,11 +38,11 @@ import org.jetbrains.annotations.Nullable;
  * collectively. It supports operations such as retrieving the inventory storage for specific directions
  * and accessing the output inventory.</p>
  *
- * @param <T> The type of inventory that extends {@link SimpleInventory}, allowing for
- * flexibility in the types of inventories that can be wrapped and managed.
+ * Wrapped inventory provides the needed flexibility in the types of inventories that can be
+ * wrapped and managed.
  */
 @SuppressWarnings("unused")
-public interface IWrappedInventory<T extends SimpleInventory>
+public interface IWrappedInventory
 {
     /**
      * Retrieves the wrapped inventory storage.
@@ -53,7 +53,7 @@ public interface IWrappedInventory<T extends SimpleInventory>
      *
      * @return an instance of {@link WrappedInventoryStorage} containing the wrapped inventories.
      */
-    WrappedInventoryStorage<T> getInventory();
+    WrappedInventoryStorage getInventory();
 
     /**
      * Retrieves the inventory storage for a specific direction.

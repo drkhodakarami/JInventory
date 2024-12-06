@@ -24,7 +24,7 @@
 
 package jiraiyah.jinventory;
 
-import jiraiyah.jiralib.blockentity.UpdatableBE;
+import jiraiyah.jiralib.blockentity.NoScreenUpdatableBE;
 import net.minecraft.item.ItemStack;
 
 import java.util.function.BiPredicate;
@@ -47,7 +47,7 @@ import java.util.function.BiPredicate;
  * @see SyncingSimpleInventory
  * @see BiPredicate
  * @see ItemStack
- * @see UpdatableBE
+ * @see NoScreenUpdatableBE
  *
  * @version 1.0
  * @since 2023
@@ -87,11 +87,11 @@ public class PredicateSimpleInventory extends SyncingSimpleInventory
      * block entity, inventory size, and item validation predicate.
      *
      * <p>This constructor initializes the inventory with a given size and associates
-     * it with an {@link UpdatableBE} block entity. It also sets a {@link BiPredicate}
+     * it with an {@link NoScreenUpdatableBE} block entity. It also sets a {@link BiPredicate}
      * to validate items for specific slots, allowing for custom rules to be applied
      * to the inventory.</p>
      *
-     * @param blockEntity The {@link UpdatableBE} block entity associated with this inventory.
+     * @param blockEntity The {@link NoScreenUpdatableBE} block entity associated with this inventory.
      *                    This entity is responsible for handling updates between the server
      *                    and client.
      * @param size        The size of the inventory, representing the number of slots available.
@@ -100,11 +100,11 @@ public class PredicateSimpleInventory extends SyncingSimpleInventory
      *                    the item is valid for the specified slot. This allows for custom validation
      *                    logic to be applied to the inventory slots.
      *
-     * @see UpdatableBE
+     * @see NoScreenUpdatableBE
      * @see BiPredicate
      * @see ItemStack
      */
-    public PredicateSimpleInventory(UpdatableBE blockEntity, int size, BiPredicate<ItemStack, Integer> predicate)
+    public PredicateSimpleInventory(NoScreenUpdatableBE blockEntity, int size, BiPredicate<ItemStack, Integer> predicate)
     {
         super(blockEntity, size);
         this.predicate = predicate;
@@ -115,11 +115,11 @@ public class PredicateSimpleInventory extends SyncingSimpleInventory
      * block entity, item validation predicate, and initial set of items.
      *
      * <p>This constructor initializes the inventory with a predefined set of {@link ItemStack}
-     * items and associates it with an {@link UpdatableBE} block entity. It also sets a
+     * items and associates it with an {@link NoScreenUpdatableBE} block entity. It also sets a
      * {@link BiPredicate} to validate items for specific slots, allowing for custom rules
      * to be applied to the inventory.</p>
      *
-     * @param blockEntity The {@link UpdatableBE} block entity associated with this inventory.
+     * @param blockEntity The {@link NoScreenUpdatableBE} block entity associated with this inventory.
      *                    This entity is responsible for handling updates between the server
      *                    and client.
      * @param predicate   A {@link BiPredicate} that takes an {@link ItemStack} and an {@link Integer}
@@ -130,11 +130,11 @@ public class PredicateSimpleInventory extends SyncingSimpleInventory
      *                    the inventory. These items are placed into the inventory slots upon
      *                    initialization.
      *
-     * @see UpdatableBE
+     * @see NoScreenUpdatableBE
      * @see BiPredicate
      * @see ItemStack
      */
-    public PredicateSimpleInventory(UpdatableBE blockEntity, BiPredicate<ItemStack, Integer> predicate, ItemStack... items)
+    public PredicateSimpleInventory(NoScreenUpdatableBE blockEntity, BiPredicate<ItemStack, Integer> predicate, ItemStack... items)
     {
         super(blockEntity, items);
         this.predicate = predicate;
@@ -173,7 +173,7 @@ public class PredicateSimpleInventory extends SyncingSimpleInventory
      * @see ItemStack
      * @see BiPredicate
      */
-    public BiPredicate<ItemStack, Integer> getPredicate()
+    public BiPredicate<ItemStack, Integer> predicate()
     {
         return this.predicate;
     }

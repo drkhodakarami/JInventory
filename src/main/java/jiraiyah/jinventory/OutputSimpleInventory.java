@@ -24,7 +24,7 @@
 
 package jiraiyah.jinventory;
 
-import jiraiyah.jiralib.blockentity.UpdatableBE;
+import jiraiyah.jiralib.blockentity.NoScreenUpdatableBE;
 import net.minecraft.item.ItemStack;
 
 import java.util.function.BiPredicate;
@@ -48,7 +48,7 @@ import java.util.function.BiPredicate;
  * @see PredicateSimpleInventory
  * @see BiPredicate
  * @see ItemStack
- * @see UpdatableBE
+ * @see NoScreenUpdatableBE
  *
  * @version 1.0
  * @since 2023
@@ -60,26 +60,26 @@ public class OutputSimpleInventory extends PredicateSimpleInventory
 {
     /**
      * Constructs an {@code OutputSimpleInventory} with a specified size, associated with a given
-     * {@link UpdatableBE} block entity. This constructor initializes the inventory with the
+     * {@link NoScreenUpdatableBE} block entity. This constructor initializes the inventory with the
      * specified number of slots, ensuring that all slots are output-only.
      *
      * <p>This constructor is useful when you need to create an inventory that is tied to a specific
      * block entity and is intended for output purposes only. The inventory will not allow any items
      * to be manually inserted, maintaining the integrity of the output-only design.</p>
      *
-     * @param blockEntity The {@link UpdatableBE} block entity associated with this inventory.
+     * @param blockEntity The {@link NoScreenUpdatableBE} block entity associated with this inventory.
      *                    This parameter links the inventory to a specific block entity, allowing
      *                    for updates and synchronization between server and client.
      * @param size        The number of slots in the inventory. This determines the capacity of
      *                    the inventory, with each slot being designated as output-only.
      */
-    public OutputSimpleInventory(UpdatableBE blockEntity, int size)
+    public OutputSimpleInventory(NoScreenUpdatableBE blockEntity, int size)
     {
         super(blockEntity, size, (slot, stack) -> false);
     }
 
     /**
-     * Constructs an {@code OutputSimpleInventory} associated with a given {@link UpdatableBE} block entity
+     * Constructs an {@code OutputSimpleInventory} associated with a given {@link NoScreenUpdatableBE} block entity
      * and initializes it with a predefined set of {@link ItemStack} items. This constructor sets up the
      * inventory to be output-only, ensuring that no items can be manually inserted into the slots.
      *
@@ -88,14 +88,14 @@ public class OutputSimpleInventory extends PredicateSimpleInventory
      * maintains its output-only nature, making it suitable for automated systems or machines where
      * manual item insertion is not desired.</p>
      *
-     * @param blockEntity The {@link UpdatableBE} block entity associated with this inventory. This parameter
+     * @param blockEntity The {@link NoScreenUpdatableBE} block entity associated with this inventory. This parameter
      *                    establishes a connection between the inventory and the block entity, allowing for
      *                    updates and synchronization between server and client.
      * @param items       A varargs parameter of {@link ItemStack} representing the initial items to populate
      *                    the inventory slots. Each slot is designated as output-only, and the items are
      *                    set programmatically.
      */
-    public OutputSimpleInventory(UpdatableBE blockEntity, ItemStack... items)
+    public OutputSimpleInventory(NoScreenUpdatableBE blockEntity, ItemStack... items)
     {
         super(blockEntity, (slot, stack) -> false, items);
     }

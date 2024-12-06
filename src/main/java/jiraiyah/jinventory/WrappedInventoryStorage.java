@@ -24,7 +24,8 @@
 
 package jiraiyah.jinventory;
 
-import jiraiyah.jiralib.blockentity.UpdatableBE;
+import jiraiyah.jiralib.PosHelper;
+import jiraiyah.jiralib.blockentity.NoScreenUpdatableBE;
 import jiraiyah.jiralib.interfaces.NBTSerializable;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -48,18 +49,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * A wrapper for multiple, sided, inventories that implements the {@link InventoryStorage} interface.
+ * A wrapper for multiple, sided, inventories that implements the {@link NBTSerializable} interface.
  *
  * @author TurtyWurty
  */
 @SuppressWarnings("unused")
-public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSerializable<NbtList>
+public class WrappedInventoryStorage implements NBTSerializable<NbtList>
 {
     /**
      * A list of inventories wrapped by this storage. Each inventory is an instance of {@link SimpleInventory}.
      * This list is used to manage multiple inventories collectively.
      */
-    private final List<T> inventories = new ArrayList<>();
+    private final List<SimpleInventory> inventories = new ArrayList<>();
 
     /**
      * A list of {@link InventoryStorage} instances corresponding to each inventory in the {@code inventories} list.
@@ -81,11 +82,11 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
 
     /**
      * Creates a new WrappedInventoryStorage with the given inventories.
-     * The inventory will be assigned to all directions because we didn't set a specific direction for the inventory.
+     * The inventory will be assigned to no directions because we didn't set a specific direction for the inventory.
      *
      * @param inventory the inventory to wrap
      */
-    public void addInventory(@NotNull T inventory)
+    public void addInventory(@NotNull SimpleInventory inventory)
     {
         addInventory(inventory, null);
     }
@@ -96,7 +97,7 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
      * @param inventory the inventory to wrap
      * @param direction the direction to assign the inventory to. If null, the inventory will be assigned to all directions.
      */
-    public void addInventory(@NotNull T inventory, Direction direction)
+    public void addInventory(@NotNull SimpleInventory inventory, Direction direction)
     {
         this.inventories.add(inventory);
         InventoryStorage storage = InventoryStorage.of(inventory, direction);
@@ -105,12 +106,36 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
     }
 
     /**
+     * Creates a new WrappedInventoryStorage with a new sync inventory of the given size.
+     * The inventory will be assigned to no directions because we didn't set a specific direction for the inventory.
+     *
+     * @param blockEntity the block entity to which the inventory will be added.
+     * @param size the size of the sync inventory storage.
+     */
+    public void addSyncInventory(NoScreenUpdatableBE blockEntity, int size)
+    {
+        addInventory(new SyncingSimpleInventory(blockEntity, size));
+    }
+
+    /**
+     * Creates a new WrappedInventoryStorage with a new sync inventory of the given size and direction.
+     *
+     * @param blockEntity the block entity to which the inventory will be added.
+     * @param size the size of the sync inventory storage.
+     * @param direction the direction associated with this inventory storage.
+     */
+    public void addSyncInventory(NoScreenUpdatableBE blockEntity, int size, Direction direction)
+    {
+        addInventory(new SyncingSimpleInventory(blockEntity, size), direction);
+    }
+
+    /**
      * Retrieves the list of inventories wrapped by this storage. Each inventory in the list is an instance of {@link SimpleInventory}.
      * This method provides access to the underlying inventories, allowing for direct interaction with each inventory's contents.
      *
      * @return a list of inventories, where each inventory is an instance of {@link SimpleInventory}.
      */
-    public List<T> getInventories()
+    public List<SimpleInventory> getInventories()
     {
         return inventories;
     }
@@ -195,7 +220,7 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
      *
      * @return the inventory at the given index, or null if the index is out of bounds.
      */
-    public @Nullable T getInventory(int index)
+    public @Nullable SimpleInventory getInventory(int index)
     {
         return this.inventories.get(index);
     }
@@ -210,7 +235,7 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
     public @NotNull List<ItemStack> getStacks()
     {
         List<ItemStack> stacks = new ArrayList<>();
-        for (T inventory : this.inventories)
+        for (SimpleInventory inventory : this.inventories)
             for (int i = 0; i < inventory.size(); i++)
                 stacks.add(inventory.getStack(i));
         return stacks;
@@ -229,7 +254,7 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
     public @NotNull List<ItemStack> getStacks(int index)
     {
         List<ItemStack> stacks = new ArrayList<>();
-        T inventory = getInventory(index);
+        SimpleInventory inventory = getInventory(index);
         if (inventory == null)
             return stacks;
         for (int i = 0; i < inventory.size(); i++)
@@ -274,7 +299,7 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
      */
     public void onOpen(@NotNull PlayerEntity player)
     {
-        for (T inventory : this.inventories)
+        for (SimpleInventory inventory : this.inventories)
             inventory.onOpen(player);
     }
 
@@ -289,7 +314,7 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
      */
     public void onClose(@NotNull PlayerEntity player)
     {
-        for (T inventory : this.inventories)
+        for (SimpleInventory inventory : this.inventories)
             inventory.onClose(player);
     }
 
@@ -305,30 +330,25 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
      */
     public void dropContents(@NotNull World world, @NotNull BlockPos pos)
     {
-        for (T inventory : this.inventories)
+        for (SimpleInventory inventory : this.inventories)
             ItemScatterer.spawn(world, pos, inventory);
     }
 
     /**
-     * Adds a default output inventory to the specified {@link UpdatableBE} block entity. This method initializes
+     * Adds a default output inventory to the specified {@link NoScreenUpdatableBE} block entity. This method initializes
      * an inventory with the given size and associates it with a specific direction. It is typically used to set up
      * the output storage for a block entity, allowing items to be output in a specified direction.
      *
-     * @param blockEntity the {@link UpdatableBE} block entity to which the output inventory is added. This parameter
+     * @param blockEntity the {@link NoScreenUpdatableBE} block entity to which the output inventory is added. This parameter
      *                    must not be null and represents the block entity that will contain the output inventory.
      * @param size        the size of the inventory to be created. This parameter specifies the number of slots in the
      *                    output inventory.
      * @param direction   the {@link Direction} in which the output inventory is accessible. This parameter determines
      *                    the direction from which the inventory can be interacted with.
      */
-    @SuppressWarnings("unchecked")
-    public void addDefaultOutputInventory(UpdatableBE blockEntity, int size, Direction direction)
+    public void addDefaultOutputInventory(NoScreenUpdatableBE blockEntity, int size, Direction direction)
     {
-        OutputSimpleInventory out = new OutputSimpleInventory(blockEntity, size);
-        this.inventories.add((T) out);
-        InventoryStorage storage = InventoryStorage.of(out, direction);
-        this.storages.add(storage);
-        this.sidedStorageMap.put(direction, storage);
+        addInventory(new OutputSimpleInventory(blockEntity, size));
     }
 
     /**
@@ -344,7 +364,7 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
     public NbtList writeNbt(RegistryWrapper.WrapperLookup registryLookup)
     {
         NbtList nbt = new NbtList();
-        for (T inventory : this.inventories)
+        for (SimpleInventory inventory : this.inventories)
         {
             NbtCompound inventoryNbt = new NbtCompound();
             nbt.add(Inventories.writeNbt(inventoryNbt, inventory.getHeldStacks(), registryLookup));
@@ -371,5 +391,15 @@ public class WrappedInventoryStorage<T extends SimpleInventory> implements NBTSe
             SimpleInventory inventory = this.inventories.get(index);
             Inventories.readNbt(inventoryNbt, inventory.getHeldStacks(), registryLookup);
         }
+    }
+
+    /**
+     * Retrieves a `SimpleInventory` related to a direction using the facing of the block.
+     *
+     * @return A {@link SimpleInventory} related to the direction with the given facing.
+     */
+    public InventoryStorage getProvider(Direction direction, Direction facing)
+    {
+        return getStorage(PosHelper.getRelativeDirection(direction, facing));
     }
 }
